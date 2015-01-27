@@ -2,9 +2,11 @@ server {
 listen <% if node[:doorman][:enabled]=='true' -%>8080<% else -%>80<% end -%>;
   server_name _;
   port_in_redirect off;
+  set $graphite "http://<%= node['graphite']['host'] %>:<%= node['graphite']['listen_port'] %>/";
+  set $elasticsearch "http://<%= node['kibana']['elasticsearch_server'] %>:9200/";
 
   location / {
-    proxy_pass            http://<%= node['graphite']['host'] %>:<%= node['graphite']['listen_port'] %>/;
+    proxy_pass            $graphite;
   }
 
   location /flapjack {
@@ -19,7 +21,7 @@ listen <% if node[:doorman][:enabled]=='true' -%>8080<% else -%>80<% end -%>;
   }
 
   location /elasticsearch {
-    proxy_pass            http://<%= node['kibana']['elasticsearch_server'] %>:9200/;
+    proxy_pass            $elasticsearch;
   }
 
   location /grafana {
